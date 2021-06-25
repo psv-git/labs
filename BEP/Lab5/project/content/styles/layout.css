@@ -1,0 +1,166 @@
+* 
+{
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: none;
+    text-decoration: none;
+    font-size: 1vw;
+    color: black;
+    word-wrap: break-word;
+    box-sizing: border-box;
+}
+
+html 
+{
+    width: 100%;
+    height: 100%;
+    background: white;
+}
+
+body 
+{
+    display: block;
+    width: 100%;
+    max-width: 2000px;
+    margin: auto;
+    background: gainsboro;
+}
+
+header 
+{
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 5em;
+    max-width: 2000px;
+    padding: 0.5em;
+    border-bottom: 0.1em solid black;
+    background: floralwhite;
+}
+
+main 
+{
+    margin-top: 5em;
+    width: 100%;
+}
+
+footer 
+{
+    display: inline-block;
+    bottom: 0;
+    width: 100%;
+    height: 5em;
+    max-width: 2000px;
+    text-align: center;
+    border-top: 0.1em solid black;
+    background: floralwhite;
+}
+
+.menu_wrapper 
+{
+    padding: 0.5em;
+    width: 20%;
+    float: left;
+}
+
+.content_wrapper 
+{
+    padding: 0.5em;
+    width: 60%;
+    float: left;
+}
+
+.site_logo 
+{
+    width: 10%;
+    margin-left: 2%;
+    height: 5em;
+    float: left;
+}
+
+.site_logo > img 
+{
+    width: 5em;
+    height: 5em;
+}
+
+.site_title 
+{
+    width: 88%;
+    float: left;
+    text-align: right;
+}
+
+.site_title > p 
+{
+    color: black;
+    font-size: 3em;
+}
+
+.menu_title_wrapper, .content_title_wrapper 
+{
+    margin-top: 0.5em;
+    text-align: center;
+    padding: 0.2em;
+    background: floralwhite;
+    border: 0.1em solid black;
+}
+
+.text_title 
+{
+    font-size: 2em;
+}
+
+.menu_list_wrapper, .content_list_wrapper 
+{
+    margin-top: 0.5em;
+    background: floralwhite;
+    border: 0.1em solid black;
+}
+
+.menu_list 
+{
+    display: block;
+    list-style-type: none;
+    padding: 2em;
+}
+
+.menu_list > li > a 
+{
+    font-size: 2em;
+}
+
+.content_list_wrapper 
+{
+    display: inline-block;
+    width: 100%;
+    padding-left: 4%;
+}
+
+.book_wrapper 
+{
+    float:left;
+    width: 30%;
+    text-align: center;
+    margin: 1%;
+}
+
+.book_wrapper > p 
+{
+    width: 100%;
+    height: 2em;
+    margin-bottom: 0.5em;
+    font-size: 1.5em;
+}
+
+.book_wrapper > a > img 
+{
+    width: 100%;
+}
+
+footer > p 
+{
+    font-size: 1em;
+    margin-top: 1em;
+}

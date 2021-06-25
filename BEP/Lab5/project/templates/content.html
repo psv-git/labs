@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="content_wrapper">
+    <div class="content_title_wrapper">
+        <p class="text_title">BOOKS LIST</p>
+    </div>
+    <div class="content_list_wrapper">
+        {% for book in books %}
+            {% block book %}
+            {% endblock %}
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

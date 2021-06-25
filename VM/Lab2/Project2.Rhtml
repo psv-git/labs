@@ -1,0 +1,363 @@
+<html>
+
+<head>
+<title>Lab2</title>
+</head>
+
+<body>
+
+<!--begin.rcode echo=FALSE, include=FALSE
+  library("ggplot2")
+end.rcode-->
+
+
+<h3 align="center">ОТЧЕТ ПО ЛАБОРАТОРНОЙ РАБОТЕ №2</h3>
+
+<h4 align="center">РЕШЕНИЕ СИСТЕМЫ УРАВНЕНИЙ</h4>
+
+<p align="center">Вариант 21</p>
+
+
+
+
+
+<br><br><br>
+
+
+
+
+
+<p align="center">ИСХОДНЫЕ ДАННЫЕ:</p>
+
+<p>ФИКСИРОВАННЫЕ ПАРАМЕТРЫ:</p>
+
+<!--begin.rcode 
+  
+  epsX = 0.1 # допустимая погрешность по невязке(отклонение от пункта назначения)
+  nticks = 100 # максимум итераций 
+  
+end.rcode-->
+
+<p>ПАРАМЕТРЫ ВАРИАНТА:</p>
+
+<!--begin.rcode
+
+  x0 = 0 # координата х начального расположения робота
+  y0 = 1 # координата y начального расположения робота
+  fi0 = -1 # начальный азимутальный угол направления движения робота
+  Apar = 2 # параметра А
+  Bpar = -0.5 # параметр B
+  Cpar = 4.25 # параметр C
+  
+end.rcode-->
+
+<p>ПОДБИРАЕМЫЕ ПАРАМЕТРЫ:</p>
+
+<!--begin.rcode
+
+  kV = 0.5 # коэф. пропорцинального регулятора линейной скорости
+  kW = 2 # коэф. пропорционального регулятора угловой скорости
+  alfa = 0.5 # коэф. альфа обеспечения сходимости (коэф. итерационного шага)
+  beta = 0.5 # коэф. бета для расчета kV
+  
+end.rcode-->
+
+<p>ВСПОМОГАТЕЛЬНЫЕ ПРОГРАММЫ:</p>
+
+<p>расчет полярного угла радиус вектора с координатами (x,y)</p>
+
+<!--begin.rcode
+
+  Angle = function(x, y) {
+    atan2(y, x)
+  }
+
+end.rcode-->
+
+<p>нормирование угла: -pi <= fi <= pi</p>
+
+<!--begin.rcode
+
+  normAngle = function(fi) {
+    while (abs(fi) > pi) fi = fi - 2 * pi * sign(fi)
+    fi
+  }
+
+end.rcode-->
+
+<p>расчет ошибки в направлении движения робота как расхождение между 
+полярным углом на цель и текущим азимутальным углом движения робота</p>
+
+<!--begin.rcode
+
+  epsfi = function(S, ABC) {
+    x = S[1]
+    y = S[2]
+    fi = S[3]
+    A = ABC[1]
+    B = ABC[2]
+    normAngle(Angle(-A - x, -B - y) - fi)
+  }
+
+end.rcode-->
+
+<p>расчет ошибки расположения робота как расхождение между 
+целевой точкой и текущим положением робота</p>
+
+<!--begin.rcode
+
+  epsR = function(S, ABC) {
+    x = S[1]
+    y = S[2]
+    A = ABC[1]
+    B = ABC[2]
+    C = ABC[3]
+    sqrt(x * x + y * y + 2 * A * x + 2 * B * y + C)
+  }
+
+end.rcode-->
+
+<p>расчет константы снижения скорости при несоответствии направления движения
+b0 - коэффициент снижения скорости при движении робота в противолположную сторону 
+при удалении от цели</p>
+
+<!--begin.rcode
+
+  kB = function(S, ABCb) {
+    b0 = ABCb[4]
+    b0 + abs(pi - epsfi(S, ABCb)) / pi
+  }
+
+end.rcode-->
+
+<p>расчет квадратической нормы вектора</p>
+
+<!--begin.rcode
+
+  vnorm2 = function(v) {
+    sqrt(sum(v * v))
+  }
+
+end.rcode-->
+
+<p>функция невязки</p>
+
+<!--begin.rcode
+
+  Fv = function(S, ABCb) {
+    fi = S[3]
+    Fx = epsR(S, ABCb) * kB(S, ABCb) * cos(fi)
+    Fy = epsR(S, ABCb) * kB(S, ABCb) * sin(fi)
+    Ffi = epsfi(S, ABCb)
+    c(Fx, Fy, Ffi)
+  }
+
+end.rcode-->
+
+<p>погрешность достижения цели</p>
+
+<!--begin.rcode
+
+  Fn = function(S, ABCb) {
+    if (is.vector(S)) S = matrix(S, length(S), 1)
+    Fnorm = 1:ncol(S)
+    for (ic in 1:ncol(S)) Fnorm[ic] = vnorm2(Fv(S[,ic], ABCb)[1:2])
+    Fnorm
+  }
+
+end.rcode-->
+
+<p>программа расчета траектории движения робота:</p>
+
+<!--begin.rcode
+
+  Qfun = function(kV, kw) {
+    vm = c(kV, 0, 0, 0, kV, 0, 0, 0, kw)
+    Qmat = matrix(vm, 3, 3)
+  }
+
+  iterMeth = function(x0, kV, kw, alfa, beta, epsX, maxIter) {
+    xtr = matrix(x0, length(x0), 1)
+  
+    while (vnorm2(Fv(x0, c(Apar, Bpar, Cpar, beta))[1:2]) > epsX & ncol(xtr) < maxIter) {
+      F0 = Fv(x0, c(Apar, Bpar, Cpar, beta))
+      x0 = x0 + alfa * Qfun(kV, kw) %*% matrix(F0, length(F0), 1)
+      xtr = cbind(xtr, x0)
+    }
+    ## возвращаем массив - в i-м столбце - i-е приближение
+    xtr
+  }
+
+end.rcode-->
+
+<p>программа расчета последовательности отношения</p>
+
+<!--begin.rcode
+
+  getCCv = function(x, xfin, p) {
+    if (is.vector(x)) x = matrix(x, 1, length(x)) 
+    numv = ncol(x)
+    cc = 1:numv
+    istep = rep(1:numv, length(p))
+    i = 0
+    pf = rep(p, each = numv)
+    for (ip in 1:length(p)) {
+      i = i + 1
+      for (ix in 2:numv) {
+        i = i + 1
+        cc[i] = vnorm2(xfin - x[,ix]) / vnorm2(xfin - x[,ix - 1]) ^ pf[i]
+      }
+    }
+    ## необходимо вернуть data.frame - в 1-м столбце - вектор времен, во 2-м - вектор скоростей 
+    data.frame(istep, cc, pf)
+  }
+
+end.rcode-->
+
+
+
+
+
+<br><br><br>
+
+
+
+
+
+<p align="center">1.АНАЛИЗ РАБОТЫ ПИ-РЕГУЛЯТОРА ПРИ ЗАДАННЫХ ЗНАЧЕНИЯХ.</p>
+
+<p>РАСЧЕТ ТРАЕКТОРИИ ПРИ ЗАДАННЫХ ЗНАЧЕНИЯХ ПАРАМЕТРОВ:</p>
+
+<!--begin.rcode
+
+  s0 = c(x0, y0, fi0)
+  xtr = iterMeth(s0, kV, kW, alfa, beta, epsX, nticks)
+  xtr
+
+end.rcode-->
+
+<p>РАСЧЕТ И ВЫВОД ГРАФИКА ИЗМЕНЕНИЯ НЕВЯЗКИ:</p>
+
+<!--begin.rcode
+
+  ind = 1:ncol(xtr)
+  res = data.frame(iter = ind, epsX = Fn(xtr,c(Apar, Bpar, Cpar, beta)))
+  plot(res, main = paste("Изменение погрешности с ростом итераций при kV, kW, alfa=", kV, kW, alfa), 
+     type = "l", xlab = "номер итерации", ylab = "погрешность")
+  abline(h = epsX, lwd = 2, col = "red")
+
+end.rcode-->
+
+<p>РАСЧЕТ ТРАЕКТОРИИ РОБОТА И ВЫВОД ГРАФИКА ДВИЖЕНИЯ:</p>
+
+<p>Для обеспечения плавности траектории выберем маленький шаг alfa</p>
+
+<!--begin.rcode
+
+  alfa = 0.1
+  xtr = iterMeth(s0, kV, kW, alfa, beta, epsX, nticks)
+  res = data.frame(x = xtr[1,], y = xtr[2,])
+  
+  plot(res, main = "Траектория движения робота", type = "l")
+
+end.rcode-->
+
+<p>ИССЛЕДУЕМ ПОРЯДОК И СКОРОСТЬ СХОДИМОСТИ</p>
+
+<!--begin.rcode
+
+  xfin = xtr[, ncol(xtr)]
+  ccframe = getCCv(xtr, xfin, c(1, 1.05, 1.1))
+  
+  qplot(istep, cc, data = ccframe, main = "Оценка порядка и скорости сходимости", color = pf)
+  
+  order = 1.0
+  ccframe = getCCv(xtr, xfin, c(order))
+  velocity = 1 / mean(ccframe$cc)
+  print(velocity)
+end.rcode-->
+
+<p>ВЫВОД №1:</p>
+<p>При заданных значениях констант kV=0.5, kW= 2, alfa = 0.5 находим решение с заданной точностью за 10 итераций. Система сходится с порядком сходимост p = 1 и со скоростью сходимости velocity = 1.156984</p>
+
+
+
+
+
+<br><br><br>
+
+
+
+
+
+<p align="center">2.ПОИСК КВАЗИОПТИМАЛЬНЫХ ПАРАМЕТРОВ</p>
+
+<p>РАСЧЕТ ТРАЕКТОРИИ ПРИ ВЫБРАННЫХ ЗНАЧЕНИЯХ ПАРАМЕТРОВ:</p>
+
+<p>выберем новые параметры:</p>
+
+<!--begin.rcode
+
+  kV = 0.5
+  kW = 2
+  alfa = 0.8
+
+  s0 = c(x0, y0, fi0)
+  xtr = iterMeth(s0, kV, kW, alfa, beta, epsX, nticks)
+  xtr
+  
+end.rcode-->
+
+<p>РАСЧЕТ И ВЫВОД ГРАФИКА ИЗМЕНЕНИЯ НЕВЯЗКИ:</p>
+
+<!--begin.rcode
+
+  ind = 1:ncol(xtr)
+  res = data.frame(iter = ind, epsX = Fn(xtr,c(Apar, Bpar, Cpar, beta)))
+  plot(res, main = paste("Изменение погрешности с ростом итераций при kV, kW, alfa=", kV, kW, alfa), 
+     type = "l", xlab = "номер итерации", ylab = "погрешность")
+  abline(h = epsX, lwd = 2, col = "red")
+
+end.rcode-->
+
+<p>РАСЧЕТ ТРАЕКТОРИИ РОБОТА И ВЫВОД ГРАФИКА ДВИЖЕНИЯ:</p>
+
+<p>Для обеспечения плавности траектории выберем маленький шаг alfa</p>
+
+<!--begin.rcode
+
+  alfa = 0.1
+  xtr = iterMeth(s0, kV, kW, alfa, beta, epsX, nticks)
+  res = data.frame(x = xtr[1,], y = xtr[2,])
+  
+  plot(res, main = "Траектория движения робота", type = "l")
+
+end.rcode-->
+
+<p>ИССЛЕДУЕМ ПОРЯДОК И СКОРОСТЬ СХОДИМОСТИ</p>
+
+<!--begin.rcode
+
+  xfin = xtr[, ncol(xtr)]
+  ccframe = getCCv(xtr, xfin, c(1, 1.05, 1.1))
+  
+  qplot(istep, cc, data = ccframe, main = "Оценка порядка и скорости сходимости", color = pf)
+  
+  order = 1.0
+  ccframe = getCCv(xtr, xfin, c(order))
+  velocity = 1 / mean(ccframe$cc)
+  print(velocity)
+end.rcode-->
+
+<p>ВЫВОД №2:</p>
+<p>При заданных значениях констант kV = 0.5, kW = 2, alfa = 0.8 находим решение с заданной точностью за 7 итераций, что быстрее, чем при заданных значениях констант. Система сходится с порядком сходимост p = 1 и со скоростью сходимости velocity = 1.156984</p>
+
+<p>
+Регулировка kV отвечает за шаг линейной скорости на итерации. Чем больше kV тем большее расстояние пройдет робот с заданной угловой скоростью. 
+Регулировка kw нужна для установки скорости поворота. Значение kW надо выбирать исходя из шага линейной скорости. 
+Регулировка alfa нужна для достижения нужной длины шага на итерации. Значение alfa надо выбирать исходя из значений kV и kW.
+</p>
+
+
+</body>
+</html>

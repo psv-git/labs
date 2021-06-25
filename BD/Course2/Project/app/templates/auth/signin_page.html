@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+
+{% block body %}
+
+<body class="text-center">
+    <div class="form-container">
+        <a href="/main_page">
+            <img class="mb-4" src="../static/img/icons/logo.png" alt="" width="72" height="72">
+        </a>
+        <form class="signin-form" action="" method="post">
+            {{ signin_form.hidden_tag() }}
+
+            {{ signin_form.user_email_field(class="form-control", type="email", placeholder="Email") }}
+
+            {% for error in signin_form.user_email_field.errors %}
+            <div class="alert alert-danger" role="alert">{{ error }}</div>
+            {% endfor %}
+
+            {{ signin_form.user_password_field(class="form-control", type="password", placeholder="Password") }}
+
+            {% for error in signin_form.user_password_field.errors %}
+            <div class="alert alert-danger" role="alert">{{ error }}</div>
+            {% endfor %}
+
+            <div class="remember-container">
+                {{ signin_form.remember_me_checkbox(class="checkbox mb-3") }}
+                Remember me
+            </div>
+
+            {{ signin_form.signin_submit(class="btn btn-lg btn-success btn-block") }}
+        </form>
+    </div>
+</body>
+
+{% endblock %}

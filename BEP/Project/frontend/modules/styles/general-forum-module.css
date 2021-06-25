@@ -1,0 +1,23 @@
+#forums-module-content-wrapper {
+    height: calc(100% - 50px) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    scroll-behavior: smooth;
+}
+
+
+#forums-module-nav-panel-wrapper {
+    height: 50px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-bottom: 1px solid rgb(57, 58, 59) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}

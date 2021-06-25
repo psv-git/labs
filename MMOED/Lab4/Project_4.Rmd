@@ -1,0 +1,194 @@
+---
+output:
+  pdf_document: default
+header-includes:
+ \usepackage[T2A]{fontenc}
+ \usepackage[utf8]{inputenc}
+ \usepackage[russian]{babel}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+```
+
+\centering\Large 
+Выполнение корелляционного и регрессионного анализа для 2-мерной выборки.
+
+\centering\large 
+Вариант 16
+
+\raggedright\large 
+Задание:
+
+\raggedright\normalsize
+1) По выборке значений двумерной нормально распределенной СВ найти точечную оценку коэффициента корреляции её компонент. При уровне значимости 0.05 проверить гипотезу о независимости компонент X и Y.
+
+\raggedright\normalsize
+2) С помощью МНК получить эмпирическое уравнение линейной регрессии Y на X. Построить график эмпирической прямой с изображением на нем выборочных точек.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+rows1 = c(8,12,16,20,24,"n")
+cols1 = c(5,10,15,20,25,30,"m")
+rows = c(8,12,16,20,24)
+cols = c(5,10,15,20,25,30)
+df = data.frame(c(2,0,0,0,0,2), c(4,3,0,0,0,7), c(0,7,5,7,0,19), c(0,0,30,10,5,45), c(0,0,10,8,6,24), c(0,0,0,0,3,3), c(6,10,45,25,14,100), row.names = rows1)
+names(df) = cols1
+kable(df, format = "markdown")
+```
+
+\centering\Large
+Выборочный коэффициент корелляции.
+
+\raggedright\large
+Найдем $\bar{x}, \bar{y}, \overline{x y}$:
+\centering\large
+\[ 
+\bar{x} = \dfrac{1}{n} \sum_{i=1}^k m_i x_i \hspace{2em}
+\bar{y} = \dfrac{1}{n} \sum_{j=1}^l n_j y_j \hspace{2em}
+\overline{xy} = \dfrac{1}{n} \sum_{i=1}^k \sum_{j=1}^l m_{ij} x_i y_j 
+\]
+
+\raggedright\normalsize
+```{r, message=FALSE, warning=FALSE}
+# обьем выборки
+n = 100
+# переменные для вычислений
+x = c() ; xkv = c() ; y = c() ; ykv = c() ; xy = c()
+count = 1
+# вычисление x, y, xy
+for (i in 1:length(cols)) {
+    for (k in 1:length(rows)) {
+        x[count] = rows[k] * df[k,i]
+        xkv[count] = rows[k] ^ 2 * df[k,i]
+        y[count] = cols[i] * df[k,i]
+        ykv[count] = cols[i] ^ 2 * df[k,i]
+        xy[count] = rows[k] * cols[i] * df[k,i]
+        count = count + 1
+    }
+}
+x = sum(x) / n ; x
+y = sum(y) / n ; y
+xy = sum(xy) / n ; xy
+```
+
+\raggedright\large
+Найдем $\sigma_x$ и $\sigma_y$:
+\centering\large
+\[
+\sigma_x = \sqrt{\bar{x^2} - (\bar{x})^2} \hspace{2em}
+\sigma_y = \sqrt{\bar{y^2} - (\bar{y})^2} \hspace{2em}
+\bar{x^2} = \dfrac{1}{n} \sum_{i=1}^k m_i x_i^2 \hspace{2em}
+\bar{y^2} = \dfrac{1}{n} \sum_{j=1}^l n_j y_j^2
+\]
+
+\raggedright\normalsize
+```{r}
+xkv = sum(xkv) / n ; xkv
+ykv = sum(ykv) / n ; ykv
+vx = sqrt(xkv - x ^ 2) ; vx
+vy = sqrt(ykv - y ^ 2) ; vy
+```
+
+\raggedright\large
+Найдем выборочный коэффициент корелляции:
+\centering\large
+\[ 
+r = \dfrac{\overline{x y} - \bar{x} * \bar{y}}{\sigma_x * \sigma_y} 
+\]
+
+\raggedright\normalsize
+```{r}
+r = (xy - x * y) / (vx * vy) ; r
+```
+
+\centering\Large
+Проверка гипотезы о независимости компонент X и Y с помощью статистики Стьюдента.
+
+\raggedright\large
+\[
+H_0 : r = 0
+\]
+
+\raggedright\large
+Найдем наблюдаемое значение критерия:
+\centering\large
+\[ 
+T_n = r \dfrac{\sqrt{n - 2}}{\sqrt{1 - r^2}}
+\]
+
+\raggedright\normalsize
+```{r}
+# уровень значимости
+a = 0.05
+# число степеней свободы
+k = n - 2
+# критический критерий (по таблице)
+Tk = 1.985
+
+Tn = r * (sqrt(k) / sqrt(1 - r ^ 2)) ; Tn
+```
+
+\raggedright\normalsize
+Так как $T_k < T_n$ , то нулевая гипотеза о равенстве нулю генерального коэффициента корелляции отвергается. Следовательно X и Y кореллированы.
+
+\centering\Large
+Эмпирическое уравнение линейной регрессии Y на X.
+\centering\large
+\[
+y = ax + b
+\]
+\raggedright\large
+\[
+F(a, b) = \sum_{i=1}^n e^2 = \sum_{i=1}^n (y_i - (ax_i + b))^2
+\]
+
+\raggedright\large
+\[
+\dfrac{dF}{da} = 2 \sum_{i=1}^n (ax_i^2 + bx_i - x_i y_i) \hspace{2em}
+\dfrac{dF}{db} = 2 \sum_{i=1}^n (ax_i + b - y_i)
+\]
+
+\raggedright\large
+\[
+\begin{cases}
+    a \sum_{i=1}^n x_i^2 + b \sum_{i=1}^n x_i = \sum_{i=1}^n x_i y_i \\
+    a \sum_{i=1}^n x_i + bn = \sum_{i=1}^n y_i
+\end{cases} \hspace{2em}
+\begin{cases}
+    a 6400 + b 80 = 6949.968 \\
+    a 80 + b 5 = 86.8746
+\end{cases} \hspace{2em}
+\]
+
+\centering\normalsize
+Методом Крамера получаем: 
+\centering\large
+\[
+a = 1.08, b = 1.16
+\]
+
+\raggedright\normalsize
+
+```{r}
+# переменные для расчетов
+tmp = c(); y = c()
+m = c(6,10,45,25,14)
+# расчет y для координат графика
+for (i in 1:length(rows)) {
+    for (k in 1:length(cols)) {
+        tmp[k] = cols[k] * df[i,k]
+    }
+    y[i] = sum(tmp) / m[i] 
+}
+```
+```{r, message=FALSE, warning=FALSE}
+a = 1.08
+b = 1.16
+
+y1 = a * rows + b
+
+plot(xy.coords(rows, y), xlab = "x", ylab = "y")
+lines(rows, y1)
+```
+

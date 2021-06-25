@@ -1,0 +1,11 @@
+@import "index.css";
+
+
+.main-content-wrapper {
+    background-color: transparent;
+}
+
+
+.forum-create-form-container {
+    padding: 10px;
+}

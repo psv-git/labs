@@ -1,0 +1,36 @@
+.forums-container-content-wrapper {
+    margin: 1em 0 !important;
+    padding: 0 1em !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+
+.forums-container-top-panel-wrapper {
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+
+.forums-container-top-panel-wrapper > * {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+
+.forums-container-forum-header {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+}
+
+
+.forums-container-forum-body {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}

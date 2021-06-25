@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+
+{% block body %}
+
+<body class="text-center">
+    <div class="form-container">
+        <a href="/main_page">
+            <img class="mb-4" src="../static/img/icons/logo.png" alt="" width="72" height="72">
+        </a>
+        <form class="signup-form" action="" method="post">
+            {{ signup_form.hidden_tag() }}
+
+            {{ signup_form.user_name_field(class="form-control", type="name", placeholder="Name") }}
+
+            {% for error in signup_form.user_name_field.errors %}
+            <div class="alert alert-danger" role="alert">{{ error }}</div>
+            {% endfor %}
+
+            {{ signup_form.user_email_field(class="form-control", type="email", placeholder="Email") }}
+
+            {% for error in signup_form.user_email_field.errors %}
+            <div class="alert alert-danger" role="alert">{{ error }}</div>
+            {% endfor %}
+
+            {{ signup_form.user_password_field(class="form-control", type="password", placeholder="Password") }}
+
+            {% for error in signup_form.user_password_field.errors %}
+            <div class="alert alert-danger" role="alert">{{ error }}</div>
+            {% endfor %}
+
+            {{ signup_form.signup_submit(class="btn btn-lg btn-primary btn-block") }}
+        </form>
+    </div>
+</body>
+
+{% endblock %}

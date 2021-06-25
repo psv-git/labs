@@ -1,0 +1,4 @@
+npm list --depth=0
+npm install
+npm uninstall
+npm view <package> version

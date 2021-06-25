@@ -1,0 +1,196 @@
+<html>
+
+<head>
+  <title></title>
+  <meta charset="utf-8">
+</head>
+
+<body>
+
+<!--begin.rcode echo = FALSE
+library(ggplot2)
+end.rcode-->
+
+<h2 text align = "center">Лабораторная работа №1.</h2>
+
+<h2 text align = "center">Одномерная оптимизация.</h2>
+
+<h4 text align = "center">Вариант 17</h4>
+
+<h3>Задание:</h3>
+<p>f(x,y) = x<sup>2</sup> + 10*y<sup>2</sup> - x*y - y
+<br> 
+r<sub>0</sub> = (x<sub>0</sub>, y<sub>0</sub>) ;
+<br>
+x<sub>0</sub> = -2 ; y<sub>0</sub> = 2
+<br><br>
+Определить направление спуска из начальной точки и найти вдоль этого направления 
+оптимум функции с точностью меньше, чем e = 0,001.</p>
+
+<h3>Контурный график функции:</h3>
+
+<p>Как видно из графика - минимум находится в районе точки r<sub>1</sub>=(0, 0).
+<br>
+За направление спуска возьмем вектор r<sub>0</sub>r<sub>1</sub>.
+</p>
+
+<!--begin.rcode echo=FALSE
+
+x = c(rep(-10:10, 21))
+y = c(rep(-10:10, each = 21))
+dafr = data.frame(x, y)
+f = x^2 + 10 * y^2 - x * y - y
+dafr$z = with(dafr, f)
+x1 = c(-2, 0)
+y1 = c(2, 0)
+ggplot() + geom_contour(data = dafr, aes(x = x, y = y, z = z)) + geom_line(aes(x1, y1))
+
+end.rcode-->
+
+<h3>Исходные параметры:</h3>
+
+<!--begin.rcode
+
+r0 = c(-2, 2)                                              # начальная точка вектора
+r1 = c(0, 0)                                               # направляющая точка
+dr = c(r1[1] - r0[1], r1[2] - r0[2])                       # r1 - r0
+e = 0.001                                                  # точность по производной
+
+end.rcode-->
+
+<!--begin.rcode echo=FALSE
+
+r = function(a, r0, dr) {                                  # точка r
+    return(c(r0[1] + a * dr[1], r0[2] + a * dr[2]))
+}
+
+h = function(a, r0, dr) {                                  # функция h(a)
+    return((r0[1] + a * dr[1])^2 + 10 * (r0[2] + a * dr[2])^2 - (r0[1] + a * dr[1]) * (r0[2] + a * dr[2]) - (r0[2] + a * dr[2]))
+}
+
+hs = function(a, r0, dr) {                                 # производная функции h(a)
+    return(2 * (dr[1] * (r0[1] + a * dr[1])) + 10 * (2 * (dr[2] * (r0[2] + a * dr[2]))) - (dr[2] * (r0[2] + a * dr[2]) + (r0[1] + a * dr[1]) * dr[2]) - dr[2])
+}
+
+end.rcode-->
+
+<!--begin.rcode echo = FALSE
+
+zs = 0.618                                                 # точка золотого сечения
+zss = 0.382                                                # точка симметричная zs
+a = 0                                                      # шаг
+fplot = c()                                                # векторы для графика
+aplot = c()
+
+end.rcode-->
+
+<h3>Нахождение минимума встроенной функцией:</h3>
+
+<!--begin.rcode
+
+opt = optimize(h, interval = c(0, 1), r0 = r0, dr = dr, lower = 0.001)
+
+end.rcode-->
+<!--begin.rcode echo = FALSE
+
+opt
+
+end.rcode-->
+
+
+<h3>Нахождение минимума функции методом золотого сечения:</h3>
+
+<!--begin.rcode
+
+# первая итерация - деление отрезка двумя симметричными точками в zss=0.382 и zs=0.618
+
+iter = 1
+p = hs(zs, r0, dr)
+p1 = hs(zss, r0, dr)
+f = h(a, r0, dr)
+fplot[iter] = f
+aplot[iter] = a
+if (p > p1 | p < 0) {
+  r0 = r(zss, r0, dr)
+  dr = c(r1[1] - r0[1], r1[2] - r0[2])
+  a = zss
+  l = 1 - zss
+} else {
+  r1 = r(zs, r0, dr)
+  dr = c(r1[1] - r0[1], r1[2] - r0[2])
+}
+
+# последующие итерации - деление отрезка одной точкой в zs=0.618
+
+while(TRUE) {
+  iter = iter + 1
+  p = hs(zs, r0, dr)
+  f = h(a, r0, dr)
+  fplot[iter] = f
+  aplot[iter] = a
+  if (abs(p) < e) break
+  if (p > 0) {
+    r1 = r(zs, r0, dr)
+    dr = c(r1[1] - r0[1], r1[2] - r0[2])
+  } else {
+    r0 = r(zs, r0, dr)
+    dr = c(r1[1] - r0[1], r1[2] - r0[2])
+    a = a + (l * zs)
+    l = l - (l * zs)
+  }
+}
+
+end.rcode-->
+
+<h3>Точка минимума функции f:</h3>
+
+<!--begin.rcode echo = FALSE
+
+r = r(a, r0, dr)
+r
+
+end.rcode-->
+
+
+<h3>Точка минимума функции h:</h3>
+
+<!--begin.rcode echo = FALSE
+
+a
+
+end.rcode-->
+
+<h3>Значение функции в точке минимума:</h3>
+
+<!--begin.rcode echo = FALSE
+
+fplot[iter]
+
+end.rcode-->
+
+<h3>Производная функции в точке минимума:</h3>
+
+<!--begin.rcode echo = FALSE
+
+p
+
+end.rcode-->
+
+<h3>Количество итераций:</h3>
+
+<!--begin.rcode echo = FALSE
+
+iter
+
+end.rcode-->
+
+<h3>График зависимости h от a:</h3>
+
+<!--begin.rcode echo = FALSE
+
+ggplot() + geom_line(aes(aplot, fplot)) + ylab("h(a)") + xlab("a")
+
+end.rcode-->
+
+</body>
+</html>

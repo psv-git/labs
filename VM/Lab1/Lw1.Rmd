@@ -1,0 +1,354 @@
+---
+output:
+  pdf_document: default
+header-includes:
+ \usepackage[T2A]{fontenc}
+ \usepackage[utf8]{inputenc}
+ \usepackage[russian]{babel}
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+```
+
+\centering\Large 
+ОТЧЕТ ПО ЛАБОРАТОРНОЙ РАБОТЕ №1
+
+ИССЛЕДОВАНИЕ РАБОТЫ ПИ-РЕГУЛЯТОРА
+
+Вариант 17
+
+3 февраля 2017
+
+\raggedright\large
+ИСХОДНЫЕ ДАННЫЕ:
+
+\raggedright\normalsize
+```{r}
+V0 = 0        # начальная скорость 
+m = 100       # масса обьекта
+dt = 1        # величина шага изменения времени (сек)
+maxT = 400    # максимальное время достижения круизной скорости с точностью dV
+dV = 0.1      # точность достижения скорости
+```
+
+\raggedright\large
+ИСХОДНЫЕ ДАННЫЕ ВАРИАНТА:
+
+\raggedright\normalsize
+```{r}
+kP = 2        # коэффициент пропорционального регулятора
+kI = 0.2      # коэффициент интегрального регулятора
+kc = 1.5      # коэффициент сопротивления среды
+Vdir = 35     # круизная скорость
+Umax = 100    # максимальное управляющее воздействие
+```
+
+\raggedright\large
+ПРОГРАММА РАСЧЕТА ТРАЕКТОРИИ СКОРОСТИ (ПИ-РЕГУЛЯТОР):
+
+\raggedright\normalsize
+```{r, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+##  программа расчета траектории изменения скорости робота, движущегося по прямой
+##  от текущей начальной скорости до заданной круизной скорости,
+##  ===== устройство управления - ПИ- регулятор с коэффициентами kP, kI =====
+##    u[i]<- kP*err[i] + kI*sumerr[i]*dt
+##    u[i] - управление (сила разгона или торможения, деленная на массу тела) 
+##    err[i] <- Vdir - v[i]  # - ошибка управления (рассогласование в i-й момент)
+##  ===== система управления описывается итерационным (разностным) уравнением  =====
+##    V[i+1] <- v[i] + (u[i] - kc*v[i])*dt/m   , м/с
+##    v[i] - скорость робота в i-й момент времени t[i+1]= t[i]+dt, с
+##    kc - коэффициент сопротивления среды
+##    m - масса робота (кг)
+##  ==========================================================================
+```
+```{r}
+cruizCtrl = function(kP, kI, kc, Vdir, Umax) {
+  ind = 1:maxT
+  Umin = (-Umax)
+  T = ind * dt
+  v = T * 0
+  err = 0
+  sumerr = 0
+  v[1] = V0
+  for (i in ind[-maxT]) {
+    err = Vdir - v[i]
+    sumerr = sumerr + err
+    u = kP * err + kI * sumerr * dt
+    if (u > Umax) u = Umax
+    if (u < Umin) u = Umin
+    v[i + 1] = v[i] + (u - kc * v[i]) * dt / m
+  }
+## необходимо вернуть data.frame - в 1-м столбце - вектор времен, во 2-м - вектор скоростей 
+  data.frame(T, v)
+}
+```
+
+
+\centering\Large
+1. АНАЛИЗ РАБОТЫ ПИ-РЕГУЛЯТОРА ПРИ ЗАДАННЫХ ЗНАЧЕНИЯХ.
+
+\raggedright\large
+РАСЧЕТ ТРАЕКТОРИИ СКОРОСТИ ПРИ ЗАДАННЫХ ЗНАЧЕНИЯХ ПАРАМЕТРОВ ПИ-РЕГУЛЯТОРА:
+
+\raggedright\normalsize
+```{r}
+res = cruizCtrl(kP, kI, kc, Vdir, Umax)
+head(res)
+```
+
+\raggedright\large
+ВЫВОД ГРАФИКА:
+
+\raggedright\normalsize
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+plot(res, main = "Speed change: PI-regulator", type = "l", 
+     xlab = "time, s", ylab = "speed, m/s")
+abline(h = Vdir, lwd = 2, col = "red")
+abline(h = Vdir - dV * 10, lwd = 1, col = "brown")
+abline(h = Vdir + dV * 10, lwd = 1, col = "brown")
+```
+
+\raggedright\large
+ВЫВОД №1:
+
+При заданных значениях регулятора kP=2 , kl=0.2 система достигает заданой точности за время, меньшее, чем maxT = 400 сек.
+
+
+\centering\Large
+2. ИССЛЕДУЕМ ПИ-РЕГУЛЯТОР.
+
+\raggedright\large
+ПРОГРАММА РАСЧЕТА ВРЕМЕНИ ДОСТИЖЕНИЯ ЗАДАННОЙ ТОЧНОСТИ ПО СКОРОСТИ:
+
+\raggedright\normalsize
+```{r, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+## ПРограмма расчета времени достижения заданной точности по скорости
+## tv - data.frame, содержащий время и скорость
+## Vdir, dV - это заданная скорость и точность достижения скорости
+##  ==========================================================================
+```
+```{r}
+getTime = function(tv, Vdir, dV) {
+  T = tv[["T"]]
+  v = tv[["v"]]
+  i = length(v)
+  while ((abs(Vdir - v[i]) < dV) & (i > 1)) {
+    i = i - 1
+  }
+## необходимо вернуть время, начиная с которого скорость отклонялась от заданной 
+## меньше, чем на dV
+  T[i]
+}
+```
+
+\raggedright\large
+РАСЧЕТ ВРЕМЕНИ ДОСТИЖЕНИЯ ЗАДАННОЙ ТОЧНОСТИ ПРИ ЗАДАННЫХ ЗНАЧЕНИЯХ ПАРАМЕТРОВ ПИ-РЕГУЛЯТОРА:
+
+\raggedright\normalsize
+```{r}
+tLim = getTime(res, Vdir, dV)
+print(paste(tLim, Vdir, dV))
+```
+
+\raggedright\large
+ВЫВОД ГРАФИКА:
+
+\raggedright\normalsize
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+plot(res[res$v > 30,], main = paste("Speed change: PI-regulator kP, kI=", kP, kI), type = "l", xlab = "time, s", ylab = "speed, m/s")
+abline(h = Vdir - dV * 2, lwd = 1, col = "brown")
+abline(h = Vdir + dV * 2, lwd = 1, col = "brown")
+abline(v = tLim, lwd = 2, col = "green")
+abline(h = Vdir, lwd = 2, col = "red")
+```
+
+\raggedright\large
+РАСЧЕТ ТРАЕКТОРИИ СКОРОСТИ ПРИ ВЫБРАННЫХ ЗНАЧЕНИЯХ ПАРАМЕТРОВ ПИ-РЕГУЛЯТОРА:
+
+\raggedright\normalsize
+```{r}
+res1 = cruizCtrl(2, 0.1, kc, Vdir, Umax)
+tail(res1)
+```
+
+\raggedright\large
+РАСЧЕТ ВРЕМЕНИ ДОСТИЖЕНИЯ ЗАДАННОЙ ТОЧНОСТИ ПРИ ВЫБРАННЫХ ЗНАЧЕНИЯХ ПАРАМЕТРОВ ПИ-РЕГУЛЯТОРА:
+
+\raggedright\normalsize
+```{r}
+tLim1 = getTime(res1, Vdir, dV)
+print(paste(tLim1, Vdir, dV))
+```
+
+\raggedright\large
+ВЫВОД ГРАФИКА:
+
+\raggedright\normalsize
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+plot(res1[res1$v > 30,], main = paste("Speed change: PI-regulator kP, kI=", 2, 0.1), type = "l", xlab = "time, s", ylab = "speed, m/s")
+abline(h = Vdir - dV * 2, lwd = 1, col = "brown")
+abline(h = Vdir + dV * 2, lwd = 1, col = "brown")
+abline(v = tLim1, lwd = 2, col = "green")
+abline(h = Vdir, lwd = 2, col = "red")
+```
+
+\raggedright\large
+ВЫВОД №2:
+
+При выбраных значениях ПИ-регулятора kP=2, kI=0.1 система достигает заданной точности в момент времени t1=278 сек. Это быстрее, чем момент времени t=347 сек при заданных значениях ПИ-регулятора.
+
+
+\centering\Large
+3. ИССЛЕДУЕМ ПОРЯДОК И СКОРОСТЬ СХОДИМОСТИ.
+
+\raggedright\large
+ПРОГРАММА РАСЧЕТА СТАБИЛИЗИРУЕМОЙ ПОСЛЕДОВАТЕЛЬНОСТИ:
+
+\raggedright\normalsize
+```{r, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+## ПРограмма расчета стабилизируемой последовательности
+## v - вектор скоростей (рассматривается только часть траектории)
+## Vdir - это заданная скорость 
+## p - вектор сравнимваемых значений порядка сходимости
+##  ==========================================================================
+```
+```{r}
+getCC = function(v, Vdir, p) {
+  v = v[v < Vdir - 0.1]
+  numv = length(v)
+  cc = v * 0
+  istep = rep(1:numv, length(p))
+  pf = rep(p, each = numv)
+  vf = rep(v, length(p))
+  for (i in 2:length(vf)) {
+    cc[i] = abs(Vdir - vf[i]) / abs(Vdir - vf[i - 1]) ^ pf[i]
+  }
+## необходимо вернуть data.frame - в 1-м столбце - вектор номеров шагов,
+## во 2-м - стабилизируемая последовательность, 
+## в 3-м - фактор разных споледовательностей (при разных значениях p)
+  data.frame(istep, cc, pf)
+}
+```
+
+\raggedright\large
+ОЦЕНКА ПОРЯДКА И СКОРОСТИ СХОДИМОСТИ:
+
+\raggedright\normalsize
+```{r}
+res2 = res1[res1$v < Vdir - dV * 10,]
+ccframe = getCC(res2$v, Vdir, c(1, 1.1, 1.2))
+```
+
+\raggedright\large
+ВЫВОД ГРАФИКА
+
+\raggedright\normalsize
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+qplot(istep, cc, data = ccframe, main = "Evaluation convergence by order and speed", 
+      color = pf, ylim = c(0, 1))
+```
+
+\raggedright\large
+Видим, что стабилизация последовательности достигается при порядке p$\approx{1.1}$, поэтому выбираем порядок сходимости равным 1.1.
+
+\raggedright\normalsize
+```{r}
+order = 1.1
+ccframe1 = getCC(res2$v, Vdir, c(order))
+velocity = 1 / mean(ccframe1$cc)
+print(velocity)
+```
+
+
+\raggedright\large
+ВЫВОД №3:
+
+При выбраных значениях kP=2, kI=0.1 ПИ-регулятора система сходится c порядком сходимости p=1.1 и со скоростью сходимости velocity=1.403866. 
+
+
+\centering\Large
+4. ИССЛЕДУЕМ ОПТИМАЛЬНЫЕ ПАРАМЕТРЫ РЕГУЛЯТОРА.
+
+\raggedright\normalsize
+```{r, message=FALSE, warning=FALSE, include=FALSE}
+V0 = 0        # начальная скорость 
+m = 100       # масса обьекта
+dt = 1        # величина шага изменения времени (сек)
+maxT = 400    # максимальное время достижения круизной скорости с точностью dV
+dV = 0.1      # точность достижения скорости
+kc = 1.5      # коэффициент сопротивления среды
+Vdir = 35     # круизная скорость
+Umax = 100    # максимальное управляющее воздействие
+# kP - коэффициент изменения воздействия в зависимости от 
+# разницы крейсерской и текущей скорости
+# kI - коэффициент компенсации возрастающего с увеличением скорости
+# сопротивления среды
+data = data.frame(rep(0, 10201), rep(0, 10201), rep(0, 10201), row.names = c(1:10201))
+colnames(data) = c("kP", "kI", "tLim")
+i = 1
+```
+```{r}
+kP = c(seq(from = 0, to = 5, by = 0.05))
+kI = c(seq(from = 0, to = 1, by = 0.01))
+for (iI in 1:101) {
+  for (iP in 1:101) {
+    res = cruizCtrl(kP[iP], kI[iI], kc, Vdir, Umax)
+    tLim = getTime(res, Vdir, dV)
+    data[i, 1] = kP[iP]
+    data[i, 2] = kI[iI]
+    data[i, 3] = tLim
+    i = i + 1
+  }
+}
+opt = data[which.min(data$tLim),]
+res = cruizCtrl(opt$kP, opt$kI, kc, Vdir, Umax)
+```
+
+\raggedright\large
+ВЫВОД ГРАФИКА
+
+\raggedright\normalsize
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+plot(res[res$v > 30,], main = paste("Speed change: PI-regulator kP, kI=", opt$kP, opt$kI), type = "l", xlab = "time, s", ylab = "speed, m/s")
+abline(h = Vdir - dV * 2, lwd = 1, col = "brown")
+abline(h = Vdir + dV * 2, lwd = 1, col = "brown")
+abline(v = opt$tLim, lwd = 2, col = "green")
+abline(h = Vdir, lwd = 2, col = "red")
+```
+
+\raggedright\large
+ОЦЕНКА ПОРЯДКА И СКОРОСТИ СХОДИМОСТИ:
+
+\raggedright\normalsize
+```{r}
+res1 = res[res$v < Vdir - dV * 10,]
+ccframe = getCC(res1$v, Vdir, c(1, 1.1, 1.2))
+```
+
+\raggedright\large
+ВЫВОД ГРАФИКА
+
+\raggedright\normalsize
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+qplot(istep, cc, data = ccframe, main = "Evaluation convergence by order and speed", 
+      color = pf, ylim = c(0, 1))
+```
+
+\raggedright\large
+Видим, что стабилизация последовательности достигается при порядке p$\approx{1.01}$, поэтому выбираем порядок сходимости равным 1.01.
+
+\raggedright\normalsize
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+order = 1.01
+ccframe1 = getCC(res2$v, Vdir, c(order))
+velocity = 1 / mean(ccframe1$cc)
+print(velocity)
+```
+
+\raggedright\large
+ВЫВОД №4:
+
+Найдены лучшие параметры ПИ-регулятора kP=4.35 , kI=0.06 . Время достижения заданной точности управления составило t=106 сек . Скорость сходимости равна velocity=1.115976 при порядке сходимости p=1.01.
+
+Регулировка kP отвечает за изменение воздействия в зависимости от разницы крейсерской и текущей скорости. Чем больше kP, тем большее воздействие будет на обьект. Регулировка kI нужна для компенсации возрастающего с увеличением скорости сопротивления среды. Значение kI надо выбирать исходя из того, насколько велико сопротивление среды.

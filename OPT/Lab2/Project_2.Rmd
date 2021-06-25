@@ -1,0 +1,238 @@
+---
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+```
+
+<h2 text align = "center">Лабораторная работа №2.</h2>
+
+<h2 text align = "center">Безусловная оптимизация ФНП.</h2>
+
+<h4 text align = "center">Вариант 17</h4>
+
+<h3>Задание:</h3>
+
+<p>
+f(x,y) = x<sup>2</sup> + 10 * y<sup>2</sup> - x * y - y
+<br> 
+r<sub>0</sub> = (x<sub>0</sub>, y<sub>0</sub>) ;
+<br>
+x<sub>0</sub> = -2 ; y<sub>0</sub> = 2
+<br><br>
+Из начальной точки найти (локальный) оптимум функции с точностью e = 0,001.
+</p>
+
+```{r, echo=FALSE}
+
+x = c(rep(-5:5, 11))
+y = c(rep(-5:5, each = 11))
+dafr = data.frame(x, y)
+f = x ^ 2 + 10 * y ^ 2 - x * y - y
+dafr$z = with(dafr, f)
+gp = ggplot() + geom_contour(data = dafr, aes(x = x, y = y, z = z))
+
+```
+
+<h3>Метод наискорейшего градиентного спуска:</h3>
+
+```{r, echo=FALSE}
+# функции для градиентного спуска
+
+grad = function(r) {                                     # градиент
+    return(c(2 * r[1] - r[2], 20 * r[2] - r[1] - 1))
+}
+
+rg = function(hg, r1, gr) {                              # точка по градиенту
+    return(c(r1[1] - hg * gr[1], r1[2] - hg * gr[2]))
+}
+
+rh = function(ha, r1, r2) {                              # точка по шагу
+    dr = c(r2[1] - r1[1], r2[2] - r1[2])
+    return(c(r1[1] + ha * dr[1], r1[2] + ha * dr[2]))
+}
+
+fh = function(ha, r1, r2) {                              # функция f(a)
+    dr = c(r2[1] - r1[1], r2[2] - r1[2])
+    return((r1[1] + ha * dr[1]) ^ 2 + 10 * (r1[2] + ha * dr[2]) ^ 2 - (r1[1] + ha * dr[1]) * (r1[2] + ha * dr[2]) - (r1[2] + ha * dr[2]))
+}
+
+fr = function(r) {                                       # функция f(r)
+    return(r[1] ^ 2 + 10 * r[2] ^ 2 - r[1] * r[2] - r[2])
+}
+
+```
+
+<h5>Исходные параметры:</h5>
+
+```{r}
+
+r0 = c(-2, 2)                                            # исходная точка
+eg = 0.001                                               # точность по производной
+hg = 1                                                   # шаг для градиента
+
+```
+
+```{r}
+
+r1 = r0                                                  # начальная точка
+iter = 0                                                 # итерации
+grn = 1                                                  # для входа в цикл
+x = c()                                                  # векторы для графика
+y = c()
+
+while (TRUE) {
+    if (grn < eg) break 
+    iter = iter + 1
+    x[iter] = r1[1]
+    y[iter] = r1[2]
+    gr = grad(r1) 
+    r2 = rg(hg, r1, gr)
+    opt = optimize(fh, interval = c(0, 1), r1 = r1, r2 = r2, lower = 0.001)
+    ha = opt$minimum
+    r1 = rh(ha, r1, r2)
+    grn = sqrt(gr[1] ^ 2 + gr[2] ^ 2)
+}
+
+```
+
+<h5>Количество итераций:</h5>
+
+```{r, echo=FALSE}
+
+iter
+
+```
+
+<h5>Точка минимума:</h5>
+
+```{r, echo=FALSE}
+
+r = c(x[iter], y[iter])
+r
+
+```
+
+<h5>Значение функции в точке минимума:</h5>
+
+```{r, echo=FALSE}
+
+f = fr(r)
+f
+
+```
+
+<h5>Модуль градиента в точке минимума:</h5>
+
+```{r, echo=FALSE}
+
+grn
+
+```
+
+
+<h5>График:</h5>
+
+```{r, echo=FALSE}
+
+gp + geom_path(aes(x, y))
+
+```
+
+<h3>Метод Монте-Карло:</h3>
+
+```{r, echo=FALSE}
+# функции для Монте-Карло
+
+rp = function(h, r, R) {                               # новая точка по шагу
+    return(c(r[1] + h[1] * R, r[2] + h[2] * R))
+}
+
+```
+
+<h5>Исходные параметры:</h5>
+
+```{r}
+
+r0 = c(-2, 2)                                            # исходная точка
+er = 0.001                                               # минимальный размер области поиска
+Q = 60000                                                  # максимальное количество итераций
+R = 10                                                   # размер области поиска
+N = 10                                                   # количество точек на итерации
+
+```
+
+```{r}
+
+r1 = r0                                                  # начальная точка
+iter = 0                                                 # итерации
+trig = 0                                                 # триггер для уменьшения R
+h = c()                                                  # вектор для шага
+x = c(r1[1])                                             # векторы для графика
+y = c(r1[2])                                             # 
+
+while (iter < Q & er < R) {
+    iter = iter + 1
+    trig = 0
+    rs = r1
+    for (i in 1:N) {
+        h = runif(2, -0.5, 0.5)
+        r = rp(h, rs, R)
+        if (fr(r) < fr(r1)) {
+            r1 = r
+            trig = 1
+        }
+    }
+    x[iter + 1] = r1[1]
+    y[iter + 1] = r1[2]
+    if (trig < 1) R = R * 0.5
+}
+
+```
+
+<h5>Количество итераций:</h5>
+
+```{r, echo=FALSE}
+
+iter
+
+```
+
+
+<h5>Точка минимума:</h5>
+
+```{r, echo=FALSE}
+
+r1
+
+```
+
+<h5>Значение функции в точке минимума:</h5>
+
+```{r, echo=FALSE}
+
+f = fr(r1)
+f
+
+```
+
+<h5>Модуль градиента в точке минимума:</h5>
+
+```{r, echo=FALSE}
+
+gr = grad(r1) 
+sqrt(gr[1] ^ 2 + gr[2] ^ 2)
+
+```
+
+
+<h5>График:</h5>
+
+```{r, echo=FALSE}
+
+gp + geom_path(aes(x, y))
+
+```
+

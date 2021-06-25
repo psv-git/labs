@@ -1,0 +1,28 @@
+{% extends "index.html" %}
+
+
+{% block content %}
+
+<div class="container-fluid main-content-wrapper">
+    <div class="container-fluid forum-create-form-container">
+        <form class="forum-create-form" action="" method="post">
+            {{ forum_create_form.hidden_tag() }}
+            <div class="form-row">
+                <div class="col">
+                    {{ forum_create_form.forum_name_field(class="form-control", type="name", placeholder="Forum name") }}
+                </div>
+                <div class="col">
+                    {{ forum_create_form.forum_create_submit(class="btn btn-primary mb-2") }}
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="container-fluid forums-wrapper">
+        {% for forum_data in forums_data %}
+        <div>Forum</div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

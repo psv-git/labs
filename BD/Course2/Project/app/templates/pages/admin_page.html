@@ -1,0 +1,62 @@
+{% extends "index.html" %}
+
+
+{% block content %}
+
+<div class="main-content-container">
+
+    <div class="container">
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#admin_panel_users_tab">Users</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#admin_panel_groups_tab">Groups</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#admin_panel_forums_tab">Forums</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#admin_panel_topics tab">Topics</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#admin_panel_posts_tab">Posts</a>
+            </li>
+        </ul>
+
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <div id="admin_panel_users_tab" class="container tab-pane active"><br>
+                <h3>USERS TAB</h3>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore
+                    et dolore magna aliqua.</p>
+            </div>
+            <div id="admin_panel_groups_tab" class="container tab-pane fade"><br>
+                <h3>GROUPS TAB</h3>
+                <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+                    consequat.</p>
+            </div>
+            <div id="admin_panel_forums_tab" class="container tab-pane fade"><br>
+                <h3>FORUMS TAB</h3>
+                <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium,
+                    totam rem aperiam.</p>
+            </div>
+            <div id="admin_panel_topics_tab" class="container tab-pane fade"><br>
+                <h3>TOPICS TAB</h3>
+                <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium,
+                    totam rem
+                    aperiam.</p>
+            </div>
+            <div id="admin_panel_posts_tab" class="container tab-pane fade"><br>
+                <h3>POSTS TAB</h3>
+                <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium,
+                    totam rem
+                    aperiam.</p>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+{% endblock %}

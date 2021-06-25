@@ -1,0 +1,7 @@
+node_modules/
+__pycache__/
+
+migrations/
+static/local
+package-lock.json
+webpack*.json

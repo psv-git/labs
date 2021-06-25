@@ -1,0 +1,101 @@
+.thread-container-content-wrapper {
+    margin: 1em 0 0 !important;
+    padding: 0 1em !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+
+.thread-container-post_create-form-wrapper {
+    margin: 1em 0 0 !important;
+    padding: 0 1em !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    border-bottom: 1px solid rgba(33, 133, 208, 1) !important;
+}
+
+
+.thread-container-top-panel-wrapper {
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+
+.thread-container-top-panel-wrapper > * {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+
+.thread-container-bottom-panel-wrapper {
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+
+.thread-container-bottom-panel-wrapper > * {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+
+.thread-container-thread-wrapper {
+    padding: 0 !important;
+
+}
+
+
+.thread-container-pinned-post-wrapper {
+    margin: 0 !important;
+    padding: 1em !important;
+    /* border-top: 1px solid rgba(33, 133, 208, 1) !important; */
+    border-bottom: 1px solid rgba(33, 133, 208, 1) !important;
+    background-color: rgba(235, 250, 255, 0.7) !important;
+}
+
+
+.thread-container-hidden-post-wrapper {
+    margin: 0 !important;
+    padding: 1em !important;
+    /* border-top: 1px solid rgba(33, 133, 208, 1) !important; */
+    border-bottom: 1px solid rgba(33, 133, 208, 1) !important;
+    background-color: rgba(255, 255, 205, 0.7) !important;
+}
+
+
+.thread-container-deleted-post-wrapper {
+    margin: 0 !important;
+    padding: 1em !important;
+    /* border-top: 1px solid rgba(33, 133, 208, 1) !important; */
+    border-bottom: 1px solid rgba(33, 133, 208, 1) !important;
+    background-color: rgba(255, 205, 205, 0.7) !important;
+}
+
+
+.thread-container-post-wrapper {
+    margin: 0 !important;
+    padding: 1em !important;
+    /* border-top: 1px solid rgba(33, 133, 208, 1) !important; */
+    border-bottom: 1px solid rgba(33, 133, 208, 1) !important;
+}
+
+
+.thread-container-post-content {
+    margin: 0 !important;
+    padding: 1rem !important;
+    border: 1px solid rgba(33, 133, 208, 0.2) !important;
+    background-color: rgba(235, 250, 255, 1) !important;
+    word-wrap: break-word !important;
+}

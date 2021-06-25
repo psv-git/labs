@@ -1,0 +1,10 @@
+PROGRAM Rgr(INPUT, OUTPUT);
+USES
+  MainUnit;
+VAR
+  FTxt: TEXT;
+
+BEGIN
+  MakeDB(INPUT);
+  PrintDB(FTxt);
+END.

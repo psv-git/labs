@@ -1,0 +1,30 @@
+#login-page-module-wrapper {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    background: rgb(230, 230, 230) url(../../assets/images/background/login-background.png) no-repeat;
+    background-size: cover;
+}
+
+
+#login-page-module-login-form-wrapper {
+    width: 350px !important;
+    max-height: 100% !important;
+    padding: 0 !important;
+}
+
+
+#login-page-module-login-form {
+    border-color: rgb(27, 28, 29);
+    box-shadow: 0 0 10px rgba(27, 28, 29, 0.5);
+    background-color: rgb(57, 58, 59) !important;
+}
+
+
+.login-page-module-login-form-item {
+    border: 1px solid rgb(27, 28, 29) !important;
+    border-radius: .28571429rem !important;
+}

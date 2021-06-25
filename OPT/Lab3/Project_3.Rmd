@@ -1,0 +1,286 @@
+---
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+```
+
+<h2 text align = "center">Лабораторная работа №3.</h2>
+
+<h2 text align = "center">Условная оптимизация ФНП.</h2>
+
+<h4 text align = "center">Вариант 17</h4>
+
+<h3>Задание:</h3>
+
+<p>
+Функция:
+<br>
+f(x,y) = 10 * (x + y<sup>2</sup>)<sup>2</sup> + (1 - x)<sup>2</sup>
+<br><br>
+Ограничения:
+<br>
+w<sub>1</sub>(x, y) = 3 * x + 2 * y - 6 >= 0 
+<br>
+w<sub>2</sub>(x, y) = 8 * x<sup>2</sup> + 2 * y<sup>2</sup> - 25 > 0
+<br><br>
+Найти минимум функции с точностью e = 0,001 по спроектированному вектору градиента.
+</p>
+
+<h3>Метод наискорейшего градиентного спуска 1:</h3>
+
+<h5>Графики функций:</h5>
+
+```{r, echo=FALSE}
+# Параметры для графиков
+
+r = 4
+x = seq(0, 5, by = 0.05)
+y = seq(-5, 5, by = 0.05)
+
+# Функции для графиков
+
+f = function(x, y) { 10 * (x + y ^ 2) ^ 2 + (1 - x) ^ 2 }
+
+w1 = function(x, y) { 3 * x + 2 * y - 6 }
+
+w2 = function(x, y) { 8 * x ^ 2 + 2 * y ^ 2 - 25 }
+
+P1 = function(x, y) {
+  p1 = w1(x, y)
+  p1[w1(x, y) < 0] = 10 ^ r
+  p1[w1(x, y) >= 0] = 0
+  return(p1)
+}
+
+P2 = function(x, y) {
+  p2 = w2(x, y)
+  p2[w2(x, y) <= 0] = 10 ^ r
+  p2[w2(x, y) > 0] = 0
+  return(p2)
+}
+
+P = function(x, y) {
+    p3 = P1(x, y) + P2(x, y)
+    p3[p3 > 0] = 10 ^ r
+    return(p3)
+}
+
+F = function(x, y) {
+    func = f(x, y) + P(x, y)
+    func[P(x, y) > 0] = 10 ^ r
+    return(func)
+}
+
+# Графики
+
+grd = expand.grid(x = x,y = y)
+grd$z = with(grd, F(x, y))
+gpl = ggplot() + geom_contour(data = grd, aes(x = x, y = y, z = z))
+
+ff = outer(x, y, f)
+PP1 = outer(x, y, P1)
+PP2 = outer(x, y, P2)
+PP = outer(x, y, P)
+FF = outer(x, y, F)
+
+jet.colors = colorRampPalette(c("#00007F", "blue", "#007FFF", "cyan", "#7FFF7F", "yellow", "#FF7F00", "red", "#7F0000"))
+color = jet.colors(100)
+
+nrz = nrow(ff)
+ncz = ncol(ff)
+zfacet = ff[-1, -1] + ff[-1, -ncz] + ff[-nrz, -1] + ff[-nrz, -ncz]
+facetcol = cut(zfacet, 100)
+
+nrz1 = nrow(PP1)
+ncz1 = ncol(PP1)
+zfacet1 = PP1[-1, -1] + PP1[-1, -ncz1] + PP1[-nrz1, -1] + PP1[-nrz1, -ncz1]
+facetcol1 = cut(zfacet1, 100)
+
+nrz2 = nrow(PP2)
+ncz2 = ncol(PP2)
+zfacet2 = PP2[-1, -1] + PP2[-1, -ncz2] + PP2[-nrz2, -1] + PP2[-nrz2, -ncz2]
+facetcol2 = cut(zfacet2, 100)
+
+nrz4 = nrow(FF)
+ncz4 = ncol(FF)
+zfacet3 = FF[-1, -1] + FF[-1, -ncz4] + FF[-nrz4, -1] + FF[-nrz4, -ncz4]
+facetcol3 = cut(zfacet3, 100)
+
+par(mfrow = c(1, 2))
+
+persp(x, y, z = ff, phi = 20, theta = 120, expand = 0.5, ticktype = "detail", xlab = "X", ylab = "Y", zlab = "Z", main = "f = 10 * (x + y ^ 2) ^ 2 + (1 - x) ^ 2", col = color[facetcol])
+
+persp(x, y, z = FF, phi = 20, theta = 120, expand = 0.5, ticktype = "detail", xlab = "X", ylab = "Y", zlab = "Z", main = "F = f + P1 + P2", col = color[facetcol3])
+
+persp(x, y, z = PP1, phi = 20, theta = 120, expand = 0.5, ticktype = "detail", xlab = "X", ylab = "Y", zlab = "Z", main = "P1   3 * x + 2 * y - 6 >= 0", col = color[facetcol1])
+
+persp(x, y, z = PP2, phi = 20, theta = 120, expand = 0.5, ticktype = "detail", xlab = "X", ylab = "Y", zlab = "Z", main = "P2   8 * x ^ 2 + 2 * y ^ 2 - 25 > 0", col = color[facetcol2])
+
+# filled.contour(x, y, ff, col = rainbow(20), nlevels = 20)
+# filled.contour(x, y, PP1, col = rainbow(20), nlevels = 20)
+# filled.contour(x, y, PP2, col = rainbow(40), nlevels = 40)
+# filled.contour(x, y, PP, col = rainbow(20), nlevels = 20)
+# filled.contour(x, y, FF, col = rainbow(7), nlevels = 7)
+
+```
+
+```{r, include=FALSE}
+# функции для градиентного спуска
+
+# D(expression(10 * (x + y ^ 2) ^ 2 + (1 - x) ^ 2), "x")
+# D(expression(10 * (x + y ^ 2) ^ 2 + (1 - x) ^ 2), "y")
+# prx = 20 * (x + y^2)) - 2 * (1 - x)
+# pry = 40 * y * (x + y^2)))
+
+fun_gr_f = function(r) {                                      # градиент в точке для f
+    return(c(20 * (r[1] + r[2] ^ 2) - 2 * (1 - r[1]), 40 * r[2] * (r[1] + r[2] ^ 2)))
+}
+
+fun_norm_gr = function(grad) {                                     # нормирование градиента
+    glen = sqrt(grad[1] ^ 2 + grad[2] ^ 2)
+    gnorm = grad / glen
+    return(gnorm)
+} 
+
+fun_r_gr = function(step, r1, grad) {                              # точка по градиенту
+    return(c(r1[1] - step * grad[1], r1[2] - step * grad[2]))
+}
+
+fun_r_st = function(step, r1, r2) {                              # точка по шагу
+    deltar = c(r2[1] - r1[1], r2[2] - r1[2])
+    return(c(r1[1] + step * deltar[1], r1[2] + step * deltar[2]))
+}
+
+fun_f_st = function(step, r1, r2) {                              # функция f(st)
+    del_r = c(r2[1] - r1[1], r2[2] - r1[2])
+    return(10 * ((r1[1] + step * del_r[1]) + (r1[2] + step * del_r[2]) ^ 2) ^ 2 + (1 - (r1[1] + step * del_r[1])) ^ 2)
+}
+
+fun_f_r = function(r) {                                       # значение функции f(r)
+    return(10 * (r[1] + r[2] ^ 2) ^ 2 + (1 - r[1]) ^ 2)
+}
+
+fun_w1 = function(r) {                                       # 1 штрафная функция
+    if ((3 * r[1] + 2 * r[2] - 6) >= 0) return(1)
+    else return(0)
+}
+
+fun_w2 = function(r) {                                       # 2 штрафная функция
+    if ((8 * r[1] ^ 2 + 2 * r[2] ^ 2 - 25) > 0) return(1)
+    else return(0)
+}
+
+fun_gr_w1 = function() {                                     # градиент в точке для w1
+    return(c(3, 2))
+}
+
+fun_gr_w2 = function(r) {                                     # градиент в точке для w2
+    return(c(16 * r[1], 4 * r[2]))
+}
+
+fun_mod = function(grad) {
+    mod = sqrt(grad[1] ^ 2 + grad[2] ^ 2)
+    return(mod)
+}
+
+w1 = function(r) { 3 * r[1] + 2 * r[2] - 6 }
+
+```
+
+<h5>Исходные параметры:</h5>
+
+```{r}
+
+r0 = c(3, 5)                                            # начальное приближение
+conesc = 0.001                                               # условие выхода
+st2 = 1                                                   # шаг для выхода
+
+```
+
+<h5>Код метода:</h5>
+
+```{r}
+
+r1 = r0                                                  # начальная точка
+iter = 0                                                 # итерации
+esc = 1
+xvec = c()                                                  # векторы для графика
+yvec = c()
+result = "Минимум успешно найден."
+
+while (TRUE) {
+    if (esc < conesc) break
+    if (iter > 1000) {
+        result = "Минимум не найден. Плохое начальное приближение."
+        break
+    }
+    iter = iter + 1
+    xvec[iter] = r1[1]
+    yvec[iter] = r1[2]
+    grad = fun_norm_gr(fun_gr_f(r1))
+    r2 = fun_r_gr(st2, r1, grad)
+    while (TRUE) {
+        if (fun_w1(r2) * fun_w2(r2)) break
+        st2 = st2 * 0.9
+        r2 = fun_r_gr(st2, r1, grad)
+    }
+    opt = optimize(fun_f_st, interval = c(0, 1), r1 = r1, r2 = r2, lower = 0.001)
+    st1 = opt$minimum
+    r1 = fun_r_st(st1, r1, r2)
+    
+    #esc = w1(r2) 
+    
+    f1 = fun_gr_f(r1)
+    w1 = fun_gr_w1()
+    # 
+    cos = (f1[1] * w1[1] + f1[2] * w1[2]) / (fun_mod(f1) * fun_mod(w1))
+    lam = (fun_mod(f1) * cos) / fun_mod(w1)
+    esc = fun_mod(f1 - lam * w1)
+}
+
+```
+
+```{r, echo=FALSE}
+
+result
+
+```
+
+
+<h5>Количество итераций:</h5>
+
+```{r, echo=FALSE}
+
+iter
+
+```
+
+<h5>Точка минимума:</h5>
+
+```{r, echo=FALSE}
+
+c(xvec[iter], yvec[iter])
+
+```
+
+<h5>Значение функции в точке минимума:</h5>
+
+```{r, echo=FALSE}
+
+fun_f_r(c(xvec[iter], yvec[iter]))
+
+```
+
+<h5>График метода:</h5>
+
+```{r, echo=FALSE}
+
+gpl + geom_path(aes(xvec, yvec))
+
+```
+
+<h3>Выводы:</h3>
+<p>Данная задача была решена без применения функции пенальти, однако, в связи с трудностью определения критерия выхода и проблемами с универсальностью, предпочтительнее использовать метод с функцией пенальти. В данном случае критерием выхода служит величина функции-ограничителя. Также критерием выхода может послужить величина шага.</p>
