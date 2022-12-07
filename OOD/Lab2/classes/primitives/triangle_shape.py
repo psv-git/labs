@@ -1,23 +1,21 @@
 from PyQt5.QtGui import QPainterPath
 
-from functions.functions import *
 from classes.primitives.a_shape import AShape
+from functions.functions import get_segment_length
 
 
 
 class TriangleShape(AShape):
-    """
-    Triangle shape class.
-
-    Args:
-        first_point: QPoint
-        second_point: QPoint
-        third_point: QPoint
-    """
 
     # private methods =========================================================
 
-    def __init__(self, first_point, second_point, third_point):
+    def __init__(self, parent, first_point, second_point, third_point):
+        """
+        Args:
+            first_point: QPoint
+            second_point: QPoint
+            third_point: QPoint
+        """
         self.__figure_type = "TRIANGLE"
         self.__first_point = first_point
         self.__second_point = second_point
@@ -28,8 +26,7 @@ class TriangleShape(AShape):
         path.lineTo(second_point)
         path.lineTo(third_point)
         path.lineTo(first_point)
-
-        super().__init__(path)
+        super().__init__(parent, path)
 
 
     # public methods ==========================================================

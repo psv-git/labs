@@ -15,8 +15,8 @@ if __name__ == '__main__':
         fileConfig(cnf.LOGGER_CONFIG_PATH, disable_existing_loggers=False)
 
         app = QApplication(sys.argv)
-
+        
         app_handler = AppHandler(sys.argv[1], sys.argv[2])
         app_handler.destroyed.connect(app.exit)
-
+        
         sys.exit(app.exec_())

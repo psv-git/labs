@@ -2,6 +2,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QWidget
 
 from configs import app_config as cnf
+from classes.primitives.composite_shape import CompositeShape
 
 
 
@@ -18,7 +19,7 @@ class Canvas(QWidget):
         super().__init__()
         self.__title = title
         self.__geometry = geometry
-        self.__figures_list = []
+        self.__shapes = {}
         self.__init_ui()
 
 
@@ -50,8 +51,8 @@ class Canvas(QWidget):
     # Qt callback methods =====================================================
 
     def paintEvent(self, event):
-        for figure in self.__figures_list:
-            figure.draw_to(self)
+        for sh in self.__shapes.values():
+            sh.draw_to(self)
 
 
     def mousePressEvent(self, event):
@@ -62,9 +63,10 @@ class Canvas(QWidget):
             if QApplication.keyboardModifiers() == Qt.ShiftModifier:
                 keyboard_modifier = cnf.SHIFT_MODIFIER
 
-            for figure in self.__figures_list:
-                figure.on_click(event.windowPos(), keyboard_modifier)
-            self.update()
+            for sh in self.__shapes.values():
+                sh.on_click(event.windowPos(), keyboard_modifier)
+
+        self.update()
 
 
     def mouseMoveEvent(self, event):
@@ -73,25 +75,56 @@ class Canvas(QWidget):
             if threshold.manhattanLength() < QApplication.startDragDistance():
                 return
 
-            point = event.windowPos()
-            for figure in self.__figures_list:
-                figure.on_drag(point)
-            
-            self.update()
+            # print(f"windowPos: {event.windowPos()}")
+            # print(f"screenPos: {event.screenPos()}")
+            # print(f"localPos: {event.localPos()}")
+            # print(f"globalPos: {event.globalPos()}")
+            # print("========================================")
+
+            cursor_pos = event.windowPos()
+            for sh in self.__shapes.values():
+                sh.on_drag(cursor_pos)
+
+        self.update()
 
 
     def keyPressEvent(self, event):
-        keyboard_modifier = None
         if QApplication.keyboardModifiers() == Qt.ControlModifier:
-            keyboard_modifier = cnf.CTL_MODIFIER
-            
+            # keyboard_modifier = cnf.CTL_MODIFIER
+
             if event.key() == Qt.Key_G:
-                print("G handler")
+                active_shapes = []
+                for sh in self.__shapes.values():
+                    if sh.is_active:
+                        active_shapes.append(sh)
+                if len(active_shapes):
+                    shape = CompositeShape(self, active_shapes[0], *active_shapes[1:])
+                    self.add_shape(shape)
+                    for sh in active_shapes:
+                        self.remove_shape(sh)
             if event.key() == Qt.Key_U:
-                print("U handler")
+                active_shapes = []
+                for sh in self.__shapes.values():
+                    if sh.is_active:
+                        active_shapes.append(sh)
+                if len(active_shapes):
+                    for sh in active_shapes:
+                        nsh = sh.get_nested_shapes()
+                        if nsh is not None:
+                            for s in nsh:
+                                sh.remove_shape(s)
+                                self.add_shape(s)
+                        if sh.is_empty:
+                            self.remove_shape(sh)
+
+        self.update()
 
 
     # public methods ==========================================================
 
-    def add_figure(self, figure):
-        self.__figures_list.append(figure)
+    def add_shape(self, shape):
+        self.__shapes[shape.get_id()] = shape
+
+
+    def remove_shape(self, shape):
+        self.__shapes.pop(shape.get_id())

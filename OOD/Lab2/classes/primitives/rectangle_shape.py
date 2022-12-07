@@ -6,17 +6,15 @@ from classes.primitives.a_shape import AShape
 
 
 class RectangleShape(AShape):
-    """
-    Rectangle shape class.
-
-    Args:
-        top_left_point: QPoint
-        bottom_right_point: QPoint
-    """
 
     # private methods =========================================================
 
-    def __init__(self, top_left_point, bottom_right_point):
+    def __init__(self, parent, top_left_point, bottom_right_point):
+        """
+        Args:
+            top_left_point: QPoint
+            bottom_right_point: QPoint
+        """
         self.__figure_type = "RECTANGLE"
         self.__top_left_point = top_left_point
         self.__bottom_right_point = bottom_right_point
@@ -27,8 +25,7 @@ class RectangleShape(AShape):
         path.lineTo(bottom_right_point)
         path.lineTo(QPoint(top_left_point.x(), bottom_right_point.y()))
         path.lineTo(top_left_point)
-
-        super().__init__(path)
+        super().__init__(parent, path)
 
 
     # public methods ==========================================================

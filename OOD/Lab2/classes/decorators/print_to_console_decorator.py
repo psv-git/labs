@@ -15,6 +15,6 @@ class PrintToConsoleDecorator(ADecorator):
     def get_parameters(self):
         figure_type, perimeter, area = super().get_parameters()
 
-        print("Figure type: {0}, perimeter: {1}, area: {2}".format(figure_type, perimeter, area))
+        print("This parameters was printed by PrintConsoleDecorator: {0}, {1}, {2}".format(figure_type, perimeter, area))
 
         return figure_type, perimeter, area

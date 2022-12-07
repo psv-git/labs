@@ -1,34 +1,31 @@
-import math
-from PyQt5.QtCore import QPoint
 from PyQt5.QtGui import QPainterPath
 
+import math
 from classes.primitives.a_shape import AShape
 
 
 
 class CircleShape(AShape):
-    """
-    Circle shape class.
 
-    Args:
-        center_point: QPoint
-        radius: int
-    """
+    # private methods ==========================================================
 
-    # private methods =========================================================
+    def __init__(self, parent, center_point, radius):
+        """
+        Class for circle shape.
 
-    def __init__(self, center_point, radius):
+        Args:
+            center_point: QPoint
+            radius: int
+        """
         self.__figure_type = "CIRCLE"
-        self.__center_point = center_point
         self.__radius = radius
 
         path = QPainterPath()
         path.addEllipse(center_point, radius, radius)
+        super().__init__(parent, path)
 
-        super().__init__(path)
 
-
-    # public methods ==========================================================
+    # public methods ===========================================================
 
     def get_parameters(self):
         """
