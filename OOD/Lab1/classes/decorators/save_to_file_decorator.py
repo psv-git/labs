@@ -3,7 +3,7 @@ from classes.decorators.base_decorator import BaseDecorator
 
 
 
-class SaveToFileDecorator(BaseDecorator):
+class PrintToConsoleDecorator(BaseDecorator):
 
     # private methods =========================================================
 

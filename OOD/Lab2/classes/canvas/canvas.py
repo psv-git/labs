@@ -95,26 +95,26 @@ class Canvas(QWidget):
             if event.key() == Qt.Key_G:
                 active_shapes = []
                 for sh in self.__shapes.values():
-                    if sh.is_active:
+                    if sh.is_active():
                         active_shapes.append(sh)
-                if len(active_shapes):
-                    shape = CompositeShape(self, active_shapes[0], *active_shapes[1:])
+                if len(active_shapes) > 1:
+                    shape = CompositeShape(self, None, *active_shapes)
                     self.add_shape(shape)
                     for sh in active_shapes:
                         self.remove_shape(sh)
             if event.key() == Qt.Key_U:
                 active_shapes = []
                 for sh in self.__shapes.values():
-                    if sh.is_active:
+                    if sh.is_active():
                         active_shapes.append(sh)
-                if len(active_shapes):
+                if len(active_shapes) == 1:
                     for sh in active_shapes:
                         nsh = sh.get_nested_shapes()
                         if nsh is not None:
                             for s in nsh:
                                 sh.remove_shape(s)
                                 self.add_shape(s)
-                        if sh.is_empty:
+                        if sh.is_empty():
                             self.remove_shape(sh)
 
         self.update()

@@ -1,4 +1,3 @@
-# import logging
 from PyQt5.QtCore import QObject, QPoint
 
 from configs import app_config as cnf
@@ -6,8 +5,9 @@ from classes.canvas.canvas import Canvas
 from classes.primitives.circle_shape import CircleShape
 from classes.primitives.triangle_shape import TriangleShape
 from classes.primitives.rectangle_shape import RectangleShape
-# from classes.decorators.print_to_console_decorator import PrintToConsoleDecorator
-# from classes.decorators.save_to_file_decorator import SaveToFileDecorator
+from classes.primitives.composite_shape import CompositeShape
+from classes.decorators.print_to_console_decorator import PrintToConsoleDecorator
+from classes.decorators.save_to_file_decorator import SaveToFileDecorator
 
 
 
@@ -65,5 +65,7 @@ class AppHandler(QObject):
         for shape in shapes_list:
             # shape = PrintToConsoleDecorator(SaveToFileDecorator(shape, output_file_path))
             # shape_type, perimeter, area = shape.get_parameters()
+            # print("This parameters return to app_handler.__process() from Shape.get_parameters(): {0}, {1}, {2}".format(shape_type, perimeter, area))
+            shape = CompositeShape(self, shape)
             self.canvas.add_shape(shape)
         self.canvas.show()
