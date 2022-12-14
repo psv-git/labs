@@ -25,6 +25,10 @@ class CircleShape(AShape):
         super().__init__(parent, path)
 
 
+    def __str__(self):
+        return "<CircleShape>"
+
+
     # public methods ===========================================================
 
     def get_parameters(self):

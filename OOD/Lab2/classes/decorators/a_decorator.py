@@ -1,97 +1,88 @@
 class ADecorator:
 
-    # private methods =========================================================
-
     def __init__(self, shape):
         self.__shape = shape
 
 
-    # public methods ==========================================================
+    def __str__(self):
+        return str(self.__shape)
+
+
+    def on_click(self, cursor_pos, keyboard_modifier):
+        return self.__shape.on_click(cursor_pos, keyboard_modifier)
+
+
+    def on_drag(self, cursor_pos):
+        return self.__shape.on_drag(cursor_pos)
+
+
+    def fill_color(self, color=None):
+        return self.__shape.fill_color(color)
+
+
+    def border_color(self, color=None):
+        return self.__shape.border_color(color)
+
+
+    def bb_fill_color(self, color=None):
+        return self.__shape.bb_fill_color(color)
+
+
+    def bb_border_color(self, color=None):
+        return self.__shape.bb_border_color(color)
+
+
+    def path(self, path=None):
+        return self.__shape.path(path)
+
+
+    def parent(self, parent=None):
+        return self.__shape.parent(parent)
+
+
+    def last_pos(self, pos=None):
+        return self.__shape.last_pos(pos)
+
+
+    def is_active(self, val=None):
+        return self.__shape.is_active(val)
+
+
+    def is_blocked(self, val=None):
+        return self.__shape.is_blocked(val)
+
+
+    def is_empty(self):
+        return self.__shape.is_empty()
+
 
     def get_id(self):
-        return self._shape.get_id()
+        return self.__shape.get_id()
 
 
-    def draw(self, canvas):
-        self.__shape.draw(canvas)
+    def bounding_rect(self):
+        return self.__shape.bounding_rect()
+
+
+    def add_shape(self, shape):
+        return self.__shape.add_shape(shape)
+
+
+    def remove_shape(self, shape):
+        return self.__shape.remove_shape(shape)
+
+
+    def get_nested_shapes(self):
+        return self.__shape.get_nested_shapes()
+
+
+    def draw_to(self, canvas):
+        return self.__shape.draw_to(canvas)
+
+
+    def move_to(self, cursor_pos):
+        return self.__shape.move_to(cursor_pos)
 
 
     def get_parameters(self):
         return self.__shape.get_parameters()
-
-
-    def on_click(self, cursor_pos, keyboard_modifier):
-        """
-        On click method.
-        Args:
-            point: QPoint
-        """
-        if self.is_blocked:
-            return
-        
-        on_focus = self.is_contain(cursor_pos)
-        if on_focus:
-            self.is_active = True
-            self._last_pos = cursor_pos
-        else:
-            if keyboard_modifier != cnf.SHIFT_MODIFIER:
-                self.is_active = False
-
-
-    def on_drag(self, cursor_pos):
-        """
-        On drag method.
-        Args:
-            point: QPoint
-        """
-        if self.is_blocked:
-            return
-
-        if self.is_active:
-            self.move_to(cursor_pos)
-
-
-    def get_id(self):
-        return id(self)
-
-
-    def bounding_rect(self):
-        """
-        Return:
-            boundecg_rect: QRectF
-        """
-        return self._path.controlPointRect()
-
-
-    def add_shape(self, shape):
-        return None
-
-
-    def remove_shape(self, shape):
-        return None
-
-
-    def get_nested_shapes(self):
-        return None
-
-
-    def draw_to(self, canvas):
-        self._draw_to(canvas)
-
-
-    def move_to(self, cursor_pos):
-        self._move_to(cursor_pos)
-
-
-    def is_contain(self, point):
-        """
-        Is point inside in shape.
-        Args:
-            point: QPoint
-        """
-        return self._path.contains(point)
-
-
-    def set_blocked(self, blocked):
-        self.is_active = False
-        self.is_blocked = blocked

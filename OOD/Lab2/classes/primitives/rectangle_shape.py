@@ -28,6 +28,9 @@ class RectangleShape(AShape):
         super().__init__(parent, path)
 
 
+    def __str__(self):
+        return "<RectangleShape>"
+
     # public methods ==========================================================
 
     def get_parameters(self):

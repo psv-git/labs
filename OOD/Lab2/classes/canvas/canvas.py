@@ -98,7 +98,7 @@ class Canvas(QWidget):
                     if sh.is_active():
                         active_shapes.append(sh)
                 if len(active_shapes) > 1:
-                    shape = CompositeShape(self, None, *active_shapes)
+                    shape = CompositeShape(self, *active_shapes)
                     self.add_shape(shape)
                     for sh in active_shapes:
                         self.remove_shape(sh)
@@ -123,6 +123,7 @@ class Canvas(QWidget):
     # public methods ==========================================================
 
     def add_shape(self, shape):
+        # print(shape)
         self.__shapes[shape.get_id()] = shape
 
 

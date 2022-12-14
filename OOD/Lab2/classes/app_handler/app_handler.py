@@ -19,7 +19,7 @@ class AppHandler(QObject):
         super().__init__()
 
         try:
-            self.canvas = Canvas("Lab 1")
+            self.canvas = Canvas("Lab 2")
             shapes_list = self.__read_input_file(input_file_path)
             self.__run(shapes_list, output_file_path)
         except:
@@ -63,9 +63,8 @@ class AppHandler(QObject):
 
     def __run(self, shapes_list, output_file_path):
         for shape in shapes_list:
-            # shape = PrintToConsoleDecorator(SaveToFileDecorator(shape, output_file_path))
-            # shape_type, perimeter, area = shape.get_parameters()
-            # print("This parameters return to app_handler.__process() from Shape.get_parameters(): {0}, {1}, {2}".format(shape_type, perimeter, area))
-            shape = CompositeShape(self, shape)
-            self.canvas.add_shape(shape)
+            shape = PrintToConsoleDecorator(SaveToFileDecorator(shape, output_file_path))
+            shape_type, perimeter, area = shape.get_parameters()
+            print("This parameters return to app_handler.__process() from Shape.get_parameters(): {0}, {1}, {2}".format(shape_type, perimeter, area))
+            self.canvas.add_shape(CompositeShape(self, shape))
         self.canvas.show()

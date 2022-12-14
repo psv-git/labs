@@ -1,4 +1,3 @@
-from PyQt5.QtCore import QPoint
 from PyQt5.QtGui import QPen, QPainter, QColor, QPainterPath
 
 from configs import app_config as cnf
@@ -16,14 +15,14 @@ class AShape:
     # private methods ==========================================================
 
     def __init__(self, parent, path):
-        self._parent = parent
-        self._path = path
-        self._last_pos = path.currentPosition()
+        self.__parent = parent
+        self.__path = path
+        self.__last_pos = path.currentPosition()
 
-        self._color = QColor(255, 255, 255, 255) # shape background
-        self._border_color = QColor(0, 255, 0, 255) # shape borders
-        self._bb_color = QColor(0, 0, 0, 0) # bounding box background
-        self._bbl_color = QColor(0, 0, 255, 255) # bounding box borders
+        self.__color = QColor(255, 255, 255, 255) # shape background
+        self.__border_color = QColor(0, 255, 0, 255) # shape borders
+        self.__bb_color = QColor(0, 0, 0, 0) # bounding box background
+        self.__bbl_color = QColor(0, 0, 255, 255) # bounding box borders
 
         self.__is_active = False
         self.__is_blocked = False
@@ -34,18 +33,26 @@ class AShape:
         self._update_bounding_box()
 
 
-    def _update_bounding_box(self):
-        self._bounding_box_path = QPainterPath()
-        self._bounding_box_path.moveTo(self.bounding_rect().topLeft())
-        self._bounding_box_path.lineTo(self.bounding_rect().topRight())
-        self._bounding_box_path.lineTo(self.bounding_rect().bottomRight())
-        self._bounding_box_path.lineTo(self.bounding_rect().bottomLeft())
-        self._bounding_box_path.lineTo(self.bounding_rect().topLeft())
+    def __repr__(self):
+        return str(self)
 
-        self._bounding_box_path.addEllipse(self.bounding_rect().topLeft(), 3, 3)
-        self._bounding_box_path.addEllipse(self.bounding_rect().topRight(), 3, 3)
-        self._bounding_box_path.addEllipse(self.bounding_rect().bottomRight(), 3, 3)
-        self._bounding_box_path.addEllipse(self.bounding_rect().bottomLeft(), 3, 3)
+
+    def __str__(self):
+        return "<AShape>"
+
+
+    def _update_bounding_box(self):
+        self.__bounding_box_path = QPainterPath()
+        self.__bounding_box_path.moveTo(self.bounding_rect().topLeft())
+        self.__bounding_box_path.lineTo(self.bounding_rect().topRight())
+        self.__bounding_box_path.lineTo(self.bounding_rect().bottomRight())
+        self.__bounding_box_path.lineTo(self.bounding_rect().bottomLeft())
+        self.__bounding_box_path.lineTo(self.bounding_rect().topLeft())
+
+        self.__bounding_box_path.addEllipse(self.bounding_rect().topLeft(), 3, 3)
+        self.__bounding_box_path.addEllipse(self.bounding_rect().topRight(), 3, 3)
+        self.__bounding_box_path.addEllipse(self.bounding_rect().bottomRight(), 3, 3)
+        self.__bounding_box_path.addEllipse(self.bounding_rect().bottomLeft(), 3, 3)
 
 
     def _draw_to(self, canvas):
@@ -55,21 +62,21 @@ class AShape:
             canvas: QWidget
         """
         painter = QPainter(canvas)
-        self.__pen.setColor(self._border_color)
+        self.__pen.setColor(self.border_color())
         painter.setPen(self.__pen)
-        painter.setBrush(self._color)
-        painter.drawPath(self._path)
+        painter.setBrush(self.fill_color())
+        painter.drawPath(self.path())
         if self.is_active():
-            self.__pen.setColor(self._bbl_color)
+            self.__pen.setColor(self.bb_border_color())
             painter.setPen(self.__pen)
-            painter.setBrush(self._bb_color)
-            painter.drawPath(self._bounding_box_path)
+            painter.setBrush(self.bb_fill_color())
+            painter.drawPath(self.__bounding_box_path)
 
 
     def _move_to(self, cursor_pos):
-        dp = cursor_pos - self._last_pos
-        self._path.translate(dp)
-        self._last_pos = cursor_pos
+        dp = cursor_pos - self.last_pos()
+        self.path().translate(dp)
+        self.last_pos(cursor_pos)
         self._update_bounding_box()
 
 
@@ -91,11 +98,10 @@ class AShape:
         if self.is_blocked():
             return
 
-        path = path or self._path
-        on_focus = self._is_contain(cursor_pos, path)
-        if on_focus:
+        path = path or self.path()
+        if self._is_contain(cursor_pos, path):
             self.is_active(True)
-            self._last_pos = cursor_pos
+            self.last_pos(cursor_pos)
         else:
             if keyboard_modifier != cnf.SHIFT_MODIFIER:
                 self.is_active(False)
@@ -125,6 +131,48 @@ class AShape:
 
     # public methods ===========================================================
 
+    def fill_color(self, color=None):
+        if color is not None:
+            self.__color = color
+        return self.__color
+
+
+    def border_color(self, color=None):
+        if color is not None:
+            self.__border_color = color
+        return self.__border_color
+
+
+    def bb_fill_color(self, color=None):
+        if color is not None:
+            self.__bb_color = color
+        return self.__bb_color
+
+
+    def bb_border_color(self, color=None):
+        if color is not None:
+            self.__bbl_color = color
+        return self.__bbl_color
+
+
+    def path(self, path=None):
+        if path is not None:
+            self.__path = path
+        return self.__path
+
+
+    def parent(self, parent=None):
+        if parent is not None:
+            self.__parent = parent
+        return self.__parent
+
+
+    def last_pos(self, pos=None):
+        if pos is not None:
+            self.__last_pos = pos
+        return self.__last_pos
+
+
     def is_active(self, val=None):
         if val is not None:
             self.__is_active = val
@@ -150,7 +198,7 @@ class AShape:
         Return:
             boundecg_rect: QRectF
         """
-        return self._path.controlPointRect()
+        return self.__path.controlPointRect()
 
 
     def add_shape(self, shape):
